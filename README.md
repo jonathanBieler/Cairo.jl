@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JuliaGraphics/Cairo.jl.svg)](https://travis-ci.org/JuliaGraphics/Cairo.jl)
+[![Build Status](https://travis-ci.org/jonathanBieler/Cairo.jl.svg)](https://travis-ci.org/jonathanBieler/Cairo.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/l3ega4q8o49edcn1?svg=true)](https://ci.appveyor.com/project/lobingera/cairo-jl-f7sfx)
 [![Coverage Status](https://coveralls.io/repos/JuliaGraphics/Cairo.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaGraphics/Cairo.jl?branch=master)
 
