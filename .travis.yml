@@ -5,5 +5,5 @@ matrix:
          os: osx
 notifications:
     email: false
-after_success:
-    - julia -e 'VERSION>=v"0.7-"&&using Pkg; cd(Pkg.dir("Cairo")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+after_failure:
+    - cat ~/build/jonathanBieler/Cairo.jl/deps/build.log

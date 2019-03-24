@@ -4,9 +4,12 @@ using Compat
 import Compat.Libdl
 import Compat.Sys
 
+@info "BUILDING --- "
+
 @eval BinDeps begin
 
     function _find_library(dep::LibraryDependency; provider = Any)
+        println("test print")
         ret = Any[]
         # Same as find_library, but with extra check defined by dep
         libnames = [dep.name;get(dep.properties,:aliases,String[])]
@@ -242,9 +245,7 @@ provides(BuildProcess,
     end),libpng, os = :Windows)
 
 
-#= @BinDeps.install Dict([(:gobject, :_jl_libgobject),
+@BinDeps.install Dict([(:gobject, :_jl_libgobject),
                        (:cairo, :_jl_libcairo),
                        (:pango, :_jl_libpango),
-                       (:pangocairo, :_jl_libpangocairo)]) =#
-
-
+                       (:pangocairo, :_jl_libpangocairo)]) 
