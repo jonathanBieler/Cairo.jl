@@ -6,4 +6,4 @@ matrix:
 notifications:
     email: false
 after_failure:
-    - cat ~/build/jonathanBieler/Cairo.jl/deps/build.log
+    - "cat ~/build/jonathanBieler/Cairo.jl/deps/build.log"
