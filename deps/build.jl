@@ -4,6 +4,86 @@ using Compat
 import Compat.Libdl
 import Compat.Sys
 
+@eval BinDeps begin
+
+    function _find_library(dep::LibraryDependency; provider = Any)
+        ret = Any[]
+        # Same as find_library, but with extra check defined by dep
+        libnames = [dep.name;get(dep.properties,:aliases,String[])]
+        # Make sure we keep the defaults first, but also look in the other directories
+        providers = unique([reduce(vcat,[getallproviders(dep,p) for p in defaults]);dep.providers])
+        for (p,opts) in providers
+            (p !== nothing && can_use(typeof(p)) && can_provide(p,opts,dep)) || continue
+            paths = AbstractString[]
+    
+            # Allow user to override installation path
+            if haskey(opts,:installed_libpath) && isdir(opts[:installed_libpath])
+                pushfirst!(paths,opts[:installed_libpath])
+            end
+    
+            ppaths = libdir(p,dep)
+            append!(paths,isa(ppaths,Array) ? ppaths : [ppaths])
+    
+            if haskey(opts,:unpacked_dir)
+                dir = opts[:unpacked_dir]
+                if dir == "." && isdir(joinpath(depsdir(dep), dep.name))
+                    # the archive unpacks into the root, so we created a subdir with the dep name
+                    push!(paths, joinpath(depsdir(dep), dep.name))
+                elseif isdir(joinpath(depsdir(dep),dir))
+                    push!(paths,joinpath(depsdir(dep),dir))
+                end
+            end
+    
+            # Windows, do you know what `lib` stands for???
+            if Compat.Sys.iswindows()
+                push!(paths,bindir(p,dep))
+            end
+            (isempty(paths) || all(map(isempty,paths))) && continue
+            for lib in libnames, path in paths
+                @info "testing $lib"
+                l = joinpath(path, lib)
+                @show h = Libdl.dlopen_e(l, Libdl.RTLD_LAZY)
+                if h != C_NULL
+                    @info "validating $lib"
+                    works = dep.libvalidate(l,h)
+                    @info "done validating $lib"
+                    l = Libdl.dlpath(h)
+                    Libdl.dlclose(h)
+                    if works
+                        push!(ret, ((p, opts), l))
+                    else
+                        # We tried to load this providers' library, but it didn't satisfy
+                        # the requirements, so tell it to force a rebuild since the requirements
+                        # have most likely changed
+                        opts[:force_rebuild] = true
+                    end
+                end
+                @info "done testing $lib"
+            end
+        end
+        # Now check system libraries
+        for lib in libnames
+            # We don't want to use regular dlopen, because we want to get at
+            # system libraries even if one of our providers is higher in the
+            # DL_LOAD_PATH
+            for path in Libdl.DL_LOAD_PATH
+                for ext in EXTENSIONS
+                    opath = string(joinpath(path,lib),ext)
+                    check_path!(ret,dep,opath)
+                end
+            end
+            for ext in EXTENSIONS
+                opath = string(lib,ext)
+                check_path!(ret,dep,opath)
+            end
+            soname = lookup_soname(lib)
+            isempty(soname) || check_path!(ret, dep, soname)
+        end
+        return ret
+    end
+
+end
+
 @BinDeps.setup
 
 # check for cairo version
