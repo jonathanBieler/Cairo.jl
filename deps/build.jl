@@ -247,5 +247,4 @@ provides(BuildProcess,
                        (:pango, :_jl_libpango),
                        (:pangocairo, :_jl_libpangocairo)]) =#
 
- @BinDeps.install Dict([(:gobject, :_jl_libgobject),
- ]) 
+
