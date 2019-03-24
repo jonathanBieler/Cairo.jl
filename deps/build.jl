@@ -242,7 +242,10 @@ provides(BuildProcess,
     end),libpng, os = :Windows)
 
 
-@BinDeps.install Dict([(:gobject, :_jl_libgobject),
+#= @BinDeps.install Dict([(:gobject, :_jl_libgobject),
                        (:cairo, :_jl_libcairo),
                        (:pango, :_jl_libpango),
-                       (:pangocairo, :_jl_libpangocairo)])
+                       (:pangocairo, :_jl_libpangocairo)]) =#
+
+ @BinDeps.install Dict([(:gobject, :_jl_libgobject),
+                       (:cairo, :_jl_libcairo)]) 
